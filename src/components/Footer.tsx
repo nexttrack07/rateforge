@@ -9,10 +9,10 @@ const footerLinks = {
 	],
 	alternatives: [
 		{ to: "/alternatives/replicate", label: "Replicate alternatives" },
-		{ to: "/alternatives/fal", label: "fal.ai alternatives" },
-		{ to: "/alternatives/dzine", label: "Dzine alternatives" },
-		{ to: "/alternatives/artlist", label: "Artlist alternatives" },
 		{ to: "/alternatives/higgsfield", label: "Higgsfield alternatives" },
+		{ to: "/alternatives/fal", label: "fal.ai alternatives" },
+		{ to: "/alternatives/openart", label: "OpenArt alternatives" },
+		{ to: "/alternatives/atlascloud", label: "AtlasCloud alternatives" },
 	],
 	resources: [
 		{ to: "/about", label: "About" },
