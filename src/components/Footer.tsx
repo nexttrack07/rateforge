@@ -5,6 +5,14 @@ const footerLinks = {
 	product: [
 		{ to: "/compare", label: "Compare prices" },
 		{ to: "/tools", label: "Calculators" },
+		{ to: "/alternatives", label: "Alternatives" },
+	],
+	alternatives: [
+		{ to: "/alternatives/replicate", label: "Replicate alternatives" },
+		{ to: "/alternatives/higgsfield", label: "Higgsfield alternatives" },
+		{ to: "/alternatives/fal", label: "fal.ai alternatives" },
+		{ to: "/alternatives/openart", label: "OpenArt alternatives" },
+		{ to: "/alternatives/atlascloud", label: "AtlasCloud alternatives" },
 	],
 	resources: [
 		{ to: "/about", label: "About" },
@@ -16,9 +24,9 @@ export function Footer() {
 	return (
 		<footer className="border-t border-white/[0.06] bg-background/50">
 			<div className="mx-auto max-w-6xl px-6 py-12">
-				<div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+				<div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
 					{/* Brand */}
-					<div className="lg:col-span-2">
+					<div className="sm:col-span-2">
 						<Logo size="sm" />
 						<p className="mt-4 max-w-sm text-sm text-muted-foreground">
 							Compare AI model pricing across APIs and platforms.
@@ -31,6 +39,23 @@ export function Footer() {
 						<h3 className="text-sm font-semibold text-foreground">Product</h3>
 						<ul className="mt-4 space-y-3">
 							{footerLinks.product.map((link) => (
+								<li key={link.label}>
+									<Link
+										to={link.to}
+										className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+									>
+										{link.label}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</div>
+
+					{/* Alternatives */}
+					<div>
+						<h3 className="text-sm font-semibold text-foreground">Alternatives</h3>
+						<ul className="mt-4 space-y-3">
+							{footerLinks.alternatives.map((link) => (
 								<li key={link.label}>
 									<Link
 										to={link.to}
