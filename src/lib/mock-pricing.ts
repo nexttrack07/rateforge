@@ -15,7 +15,7 @@ export type PricingEntry = {
 	resolution: string | null;
 	audioIncluded: boolean;
 	lastUpdatedLabel: string;
-	notes?: string;
+	notes: string | null;
 };
 
 export const featuredPricingEntries: PricingEntry[] = [
@@ -33,6 +33,7 @@ export const featuredPricingEntries: PricingEntry[] = [
 		resolution: "1080p",
 		audioIncluded: false,
 		lastUpdatedLabel: "2 hours ago",
+		notes: null,
 	},
 	{
 		id: "higgsfield-ultimate-kling",
@@ -64,6 +65,7 @@ export const featuredPricingEntries: PricingEntry[] = [
 		resolution: "1024",
 		audioIncluded: false,
 		lastUpdatedLabel: "1 day ago",
+		notes: null,
 	},
 	{
 		id: "openart-pro-gpt-image",
@@ -79,6 +81,7 @@ export const featuredPricingEntries: PricingEntry[] = [
 		resolution: "1024",
 		audioIncluded: false,
 		lastUpdatedLabel: "3 days ago",
+		notes: null,
 	},
 ];
 
@@ -98,6 +101,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: "1080p",
 		audioIncluded: true,
 		lastUpdatedLabel: "Today",
+		notes: null,
 	},
 	{
 		id: "runway-veo",
@@ -113,6 +117,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: "1080p",
 		audioIncluded: true,
 		lastUpdatedLabel: "2 days ago",
+		notes: null,
 	},
 	{
 		id: "nano-banana-api",
@@ -128,6 +133,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: "2K",
 		audioIncluded: false,
 		lastUpdatedLabel: "5 hours ago",
+		notes: null,
 	},
 	{
 		id: "freepik-nano-banana",
@@ -143,6 +149,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: "2K",
 		audioIncluded: false,
 		lastUpdatedLabel: "1 day ago",
+		notes: null,
 	},
 	{
 		id: "claude-sonnet-api",
@@ -158,6 +165,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: null,
 		audioIncluded: false,
 		lastUpdatedLabel: "4 days ago",
+		notes: null,
 	},
 	{
 		id: "openrouter-claude",
@@ -173,6 +181,7 @@ export const pricingEntries: PricingEntry[] = [
 		resolution: null,
 		audioIncluded: false,
 		lastUpdatedLabel: "4 days ago",
+		notes: null,
 	},
 ];
 

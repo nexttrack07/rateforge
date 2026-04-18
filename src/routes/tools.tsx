@@ -4,9 +4,24 @@ import { Calculator, ArrowLeftRight, Coins } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { WorkflowCalculator, ApiVsPlatformCalculator } from "@/components/calculator";
 import { cn } from "@/lib/utils";
+import { createSEOMeta, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/tools")({
 	component: ToolsPage,
+	head: () => ({
+		meta: createSEOMeta({
+			title: "AI Cost Calculators",
+			description:
+				"Free calculators to estimate your AI generation costs. Workflow estimator, API vs Platform break-even analysis, and credit converter tools.",
+			canonical: `${SITE_URL}/tools`,
+			keywords: [
+				"AI cost calculator",
+				"AI pricing calculator",
+				"API vs subscription calculator",
+				"AI credit converter",
+			],
+		}),
+	}),
 });
 
 const tools = [

@@ -152,7 +152,7 @@ export const platformModelPricing = pgTable(
 		modelId: uuid("model_id")
 			.notNull()
 			.references(() => models.id),
-		creditsPerGen: integer("credits_per_gen"),
+		creditsPerGen: decimal("credits_per_gen", { precision: 10, scale: 2 }),
 		priceUsd: decimal("price_usd", { precision: 12, scale: 4 }),
 		resolution: text("resolution"),
 		notes: text("notes"),

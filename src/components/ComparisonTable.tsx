@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { PricingEntry } from "@/lib/mock-pricing";
+import type { PricingEntry } from "@/lib/pricing/queries";
 import { cn } from "@/lib/utils";
 
 type SortField = "model" | "price" | "platform" | "updated";

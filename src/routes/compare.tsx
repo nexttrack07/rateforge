@@ -1,18 +1,77 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, AlertCircle, Database } from "lucide-react";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+	getPricingEntries,
+	getPricingFilterOptions,
 	type ModelCategory,
-	type PricingSurface,
-	pricingEntries,
-} from "@/lib/mock-pricing";
+	type PricingEntry,
+} from "@/lib/pricing/queries";
+import { pricingEntries as mockPricingEntries } from "@/lib/mock-pricing";
+import { createSEOMeta, createFAQSchema, serializeJsonLd, SITE_URL } from "@/lib/seo";
+
+const compareFAQs = [
+	{
+		question: "How do you calculate AI model pricing?",
+		answer:
+			"We normalize all pricing to USD per generation. For platforms using credits, we calculate the actual dollar cost based on their subscription plans. For APIs, we use the published per-request pricing.",
+	},
+	{
+		question: "Which AI platforms do you compare?",
+		answer:
+			"We compare pricing across major platforms including Replicate, fal.ai, Higgsfield, OpenArt, and AtlasCloud. We're constantly adding more platforms.",
+	},
+	{
+		question: "How often is the pricing data updated?",
+		answer:
+			"We update pricing data daily to ensure accuracy. Prices are sourced directly from official platform pricing pages.",
+	},
+];
 
 export const Route = createFileRoute("/compare")({
 	component: ComparePage,
+	head: () => ({
+		meta: createSEOMeta({
+			title: "Compare AI Model Pricing",
+			description:
+				"Side-by-side comparison of AI model pricing across all major platforms. Find the cheapest place to run Kling, FLUX, Veo, Sora, and more.",
+			canonical: `${SITE_URL}/compare`,
+			keywords: [
+				"AI model pricing comparison",
+				"Kling pricing",
+				"FLUX pricing",
+				"Veo pricing",
+				"AI video cost",
+				"AI image generation cost",
+			],
+		}),
+		scripts: [
+			{
+				type: "application/ld+json",
+				children: serializeJsonLd(createFAQSchema(compareFAQs)),
+			},
+		],
+	}),
+	loader: async () => {
+		try {
+			const [pricingResult, filterOptions] = await Promise.all([
+				getPricingEntries(),
+				getPricingFilterOptions(),
+			]);
+			return { ...pricingResult, filterOptions };
+		} catch (error) {
+			console.error("Failed to load pricing data:", error);
+			return {
+				entries: [] as PricingEntry[],
+				hasData: false,
+				filterOptions: { categories: [], platforms: [], resolutions: [] as string[] },
+			};
+		}
+	},
 });
 
 const categoryOptions: Array<{ value: ModelCategory | "all"; label: string }> = [
@@ -22,21 +81,24 @@ const categoryOptions: Array<{ value: ModelCategory | "all"; label: string }> = 
 	{ value: "text", label: "Text" },
 ];
 
-const surfaceOptions: Array<{ value: PricingSurface | "all"; label: string }> = [
-	{ value: "all", label: "All" },
-	{ value: "api", label: "API" },
-	{ value: "platform", label: "Platform" },
-];
-
 function ComparePage() {
+	const loaderData = Route.useLoaderData();
 	const [category, setCategory] = useState<ModelCategory | "all">("all");
-	const [surface, setSurface] = useState<PricingSurface | "all">("all");
+	const [resolution, setResolution] = useState<string>("all");
 	const [query, setQuery] = useState("");
 
+	const resolutions: string[] = loaderData.filterOptions?.resolutions ?? [];
+
+	// Use DB data if available, otherwise fall back to mock data
+	const usingMockData = !loaderData.hasData || loaderData.entries.length === 0;
+	const sourceEntries: PricingEntry[] = usingMockData
+		? (mockPricingEntries as unknown as PricingEntry[])
+		: loaderData.entries;
+
 	const filteredEntries = useMemo(() => {
-		return pricingEntries.filter((entry) => {
+		return sourceEntries.filter((entry) => {
 			const matchesCategory = category === "all" || entry.category === category;
-			const matchesSurface = surface === "all" || entry.surface === surface;
+			const matchesResolution = resolution === "all" || entry.resolution === resolution;
 			const normalizedQuery = query.trim().toLowerCase();
 			const haystack = [
 				entry.modelName,
@@ -49,15 +111,15 @@ function ComparePage() {
 			const matchesQuery =
 				normalizedQuery.length === 0 || haystack.includes(normalizedQuery);
 
-			return matchesCategory && matchesSurface && matchesQuery;
+			return matchesCategory && matchesResolution && matchesQuery;
 		});
-	}, [category, query, surface]);
+	}, [sourceEntries, category, resolution, query]);
 
-	const hasActiveFilters = category !== "all" || surface !== "all" || query.length > 0;
+	const hasActiveFilters = category !== "all" || resolution !== "all" || query.length > 0;
 
 	const clearAllFilters = () => {
 		setCategory("all");
-		setSurface("all");
+		setResolution("all");
 		setQuery("");
 	};
 
@@ -67,9 +129,28 @@ function ComparePage() {
 			<div className="space-y-2">
 				<h1 className="text-3xl font-bold tracking-tight">Compare AI pricing</h1>
 				<p className="text-muted-foreground">
-					Find the cheapest way to run any model across {pricingEntries.length} pricing options.
+					Find the cheapest way to run any model across {sourceEntries.length} pricing options.
 				</p>
 			</div>
+
+			{/* Data source indicator */}
+			{usingMockData && (
+				<div className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
+					<AlertCircle size={16} className="shrink-0 text-amber-400" />
+					<span className="text-amber-200">
+						Showing sample data. Connect database and add real pricing to see live data.
+					</span>
+				</div>
+			)}
+
+			{!usingMockData && (
+				<div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm">
+					<Database size={16} className="shrink-0 text-emerald-400" />
+					<span className="text-emerald-200">
+						Live pricing data from database ({sourceEntries.length} entries)
+					</span>
+				</div>
+			)}
 
 			{/* Filters */}
 			<div className="flex flex-wrap items-center gap-3">
@@ -109,21 +190,32 @@ function ComparePage() {
 					))}
 				</div>
 
-				{/* Surface Filter */}
-				<div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] p-1">
-					{surfaceOptions.map((opt) => (
+				{/* Resolution Filter */}
+				{resolutions.length > 0 && (
+					<div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] p-1 overflow-x-auto">
 						<Button
-							key={opt.value}
 							type="button"
 							size="sm"
-							variant={surface === opt.value ? "default" : "ghost"}
-							onClick={() => setSurface(opt.value)}
-							className="h-7 px-3 text-xs"
+							variant={resolution === "all" ? "default" : "ghost"}
+							onClick={() => setResolution("all")}
+							className="h-7 px-3 text-xs shrink-0"
 						>
-							{opt.label}
+							All resolutions
 						</Button>
-					))}
-				</div>
+						{resolutions.map((res) => (
+							<Button
+								key={res}
+								type="button"
+								size="sm"
+								variant={resolution === res ? "default" : "ghost"}
+								onClick={() => setResolution(res)}
+								className="h-7 px-3 text-xs shrink-0"
+							>
+								{res}
+							</Button>
+						))}
+					</div>
+				)}
 
 				{/* Clear All */}
 				{hasActiveFilters && (
@@ -168,12 +260,12 @@ function ComparePage() {
 							</button>
 						</Badge>
 					)}
-					{surface !== "all" && (
-						<Badge variant="secondary" className="gap-1.5 pr-1.5 capitalize">
-							Surface: {surface}
+					{resolution !== "all" && (
+						<Badge variant="secondary" className="gap-1.5 pr-1.5">
+							Resolution: {resolution}
 							<button
 								type="button"
-								onClick={() => setSurface("all")}
+								onClick={() => setResolution("all")}
 								className="rounded-sm hover:bg-white/10"
 							>
 								<X size={12} />

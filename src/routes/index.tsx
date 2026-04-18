@@ -13,9 +13,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { featuredPricingEntries } from "@/lib/mock-pricing";
+import { createSEOMeta, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
 	component: HomePage,
+	head: () => ({
+		meta: createSEOMeta({
+			title: "Rateforge - Compare AI Model Pricing",
+			description:
+				"Find the cheapest way to run any AI model. Compare pricing across Replicate, Higgsfield, OpenArt, fal.ai and more. We normalize credits and subscriptions so you can actually compare.",
+			canonical: SITE_URL,
+			keywords: [
+				"AI pricing",
+				"AI model comparison",
+				"Replicate pricing",
+				"Higgsfield pricing",
+				"AI video generation cost",
+				"AI image generation pricing",
+			],
+		}),
+	}),
 });
 
 function HomePage() {

@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createSEOMeta, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
 	component: AboutPage,
+	head: () => ({
+		meta: createSEOMeta({
+			title: "About Rateforge",
+			description:
+				"Learn about Rateforge, the independent AI pricing comparison tool. Our methodology, data sources, and mission to help creators understand AI costs.",
+			canonical: `${SITE_URL}/about`,
+		}),
+	}),
 });
 
 function AboutPage() {
