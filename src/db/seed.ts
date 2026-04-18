@@ -66,6 +66,19 @@ const platformRows = [
 		website: "https://replicate.com",
 		logoUrl: "https://replicate.com/favicon.ico",
 		pricingUrl: "https://replicate.com/pricing",
+		shortDescription:
+			"Developer-focused API platform for running open-source AI models with pay-per-use pricing.",
+		pros: [
+			"Pay only for what you use",
+			"Huge model library (thousands of models)",
+			"Easy API integration",
+			"No commitment or subscription required",
+		],
+		cons: [
+			"Can get expensive at high volume",
+			"Cold starts on less popular models",
+			"Requires technical integration",
+		],
 	},
 	{
 		slug: "higgsfield",
@@ -73,6 +86,19 @@ const platformRows = [
 		website: "https://higgsfield.ai",
 		logoUrl: "https://higgsfield.ai/favicon.ico",
 		pricingUrl: "https://higgsfield.ai/pricing",
+		shortDescription:
+			"AI video generation platform with subscription plans for creators and businesses.",
+		pros: [
+			"Unlimited generations on higher tiers",
+			"User-friendly interface",
+			"Good for beginners",
+			"Predictable monthly costs",
+		],
+		cons: [
+			"Limited model selection",
+			"No API access",
+			"Credits expire monthly",
+		],
 	},
 	{
 		slug: "openart",
@@ -80,6 +106,19 @@ const platformRows = [
 		website: "https://openart.ai",
 		logoUrl: "https://openart.ai/favicon.ico",
 		pricingUrl: "https://openart.ai/pricing",
+		shortDescription:
+			"Creative AI platform offering image generation with various models and styles.",
+		pros: [
+			"Wide variety of models and styles",
+			"Active community",
+			"Regular new model additions",
+			"Affordable entry-level plans",
+		],
+		cons: [
+			"Credit-based system can be confusing",
+			"Some features locked to higher tiers",
+			"No video generation",
+		],
 	},
 	{
 		slug: "fal",
@@ -87,6 +126,19 @@ const platformRows = [
 		website: "https://fal.ai",
 		logoUrl: "https://fal.ai/favicon.ico",
 		pricingUrl: "https://fal.ai/pricing",
+		shortDescription:
+			"Fast inference API platform optimized for speed with competitive per-request pricing.",
+		pros: [
+			"Very fast inference speeds",
+			"Competitive pricing",
+			"Good API documentation",
+			"Supports latest models quickly",
+		],
+		cons: [
+			"Smaller model selection than Replicate",
+			"Less community content",
+			"Requires technical knowledge",
+		],
 	},
 	{
 		slug: "atlascloud",
@@ -94,6 +146,19 @@ const platformRows = [
 		website: "https://www.atlascloud.ai",
 		logoUrl: "https://www.atlascloud.ai/favicon.ico",
 		pricingUrl: "https://www.atlascloud.ai/pricing/models",
+		shortDescription:
+			"Enterprise-focused AI cloud platform with managed infrastructure and dedicated support.",
+		pros: [
+			"Enterprise-grade reliability",
+			"Dedicated support",
+			"Custom deployment options",
+			"SLA guarantees",
+		],
+		cons: [
+			"Higher pricing than consumer platforms",
+			"Overkill for small projects",
+			"Less model variety",
+		],
 	},
 ];
 

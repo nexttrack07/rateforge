@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, ne, sql } from "drizzle-orm";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 import {
@@ -224,3 +224,225 @@ export const getPricingFilterOptions = createServerFn({ method: "GET" }).handler
 		};
 	},
 );
+
+// ============================================================================
+// Alternatives Page Queries
+// ============================================================================
+
+export type PlatformWithMeta = {
+	id: string;
+	name: string;
+	slug: string;
+	website: string | null;
+	shortDescription: string | null;
+	pros: string[];
+	cons: string[];
+};
+
+export type AlternativeComparison = {
+	platform: PlatformWithMeta;
+	lowestPrice: number | null;
+	modelCount: number;
+	categories: ModelCategory[];
+};
+
+// Get a single platform by slug with metadata
+export const getPlatformBySlug = createServerFn({ method: "GET" })
+	.validator((slug: string) => slug)
+	.handler(async ({ data: slug }) => {
+		if (!db) return null;
+
+		const rows = await db
+			.select({
+				id: platforms.id,
+				name: platforms.name,
+				slug: platforms.slug,
+				website: platforms.website,
+				shortDescription: platforms.shortDescription,
+				pros: platforms.pros,
+				cons: platforms.cons,
+			})
+			.from(platforms)
+			.where(eq(platforms.slug, slug))
+			.limit(1);
+
+		if (rows.length === 0) return null;
+
+		const row = rows[0];
+		return {
+			...row,
+			pros: (row.pros as string[]) || [],
+			cons: (row.cons as string[]) || [],
+		} as PlatformWithMeta;
+	});
+
+// Get all platforms (for listing)
+export const getAllPlatforms = createServerFn({ method: "GET" }).handler(
+	async () => {
+		if (!db) return [];
+
+		const rows = await db
+			.select({
+				id: platforms.id,
+				name: platforms.name,
+				slug: platforms.slug,
+				website: platforms.website,
+				shortDescription: platforms.shortDescription,
+				pros: platforms.pros,
+				cons: platforms.cons,
+			})
+			.from(platforms)
+			.orderBy(asc(platforms.name));
+
+		return rows.map((row) => ({
+			...row,
+			pros: (row.pros as string[]) || [],
+			cons: (row.cons as string[]) || [],
+		})) as PlatformWithMeta[];
+	},
+);
+
+// Get alternatives for a platform (all other platforms with comparison data)
+export const getAlternatives = createServerFn({ method: "GET" })
+	.validator((platformSlug: string) => platformSlug)
+	.handler(async ({ data: platformSlug }) => {
+		if (!db) return [];
+
+		// Get all platforms except the target
+		const otherPlatforms = await db
+			.select({
+				id: platforms.id,
+				name: platforms.name,
+				slug: platforms.slug,
+				website: platforms.website,
+				shortDescription: platforms.shortDescription,
+				pros: platforms.pros,
+				cons: platforms.cons,
+			})
+			.from(platforms)
+			.where(ne(platforms.slug, platformSlug))
+			.orderBy(asc(platforms.name));
+
+		// Get pricing stats for each platform
+		const alternatives: AlternativeComparison[] = [];
+
+		for (const platform of otherPlatforms) {
+			// Get pricing data for this platform
+			const pricingRows = await db
+				.select({
+					priceUsd: platformModelPricing.priceUsd,
+					creditsPerGen: platformModelPricing.creditsPerGen,
+					planCredits: platformPlans.credits,
+					planPriceMonthly: platformPlans.priceMonthly,
+					category: models.type,
+				})
+				.from(platformModelPricing)
+				.innerJoin(platforms, eq(platformModelPricing.platformId, platforms.id))
+				.innerJoin(platformPlans, eq(platformModelPricing.platformPlanId, platformPlans.id))
+				.innerJoin(models, eq(platformModelPricing.modelId, models.id))
+				.where(eq(platforms.id, platform.id));
+
+			if (pricingRows.length === 0) continue;
+
+			// Calculate effective prices and find lowest
+			const prices: number[] = [];
+			const categories = new Set<ModelCategory>();
+
+			for (const row of pricingRows) {
+				categories.add(row.category as ModelCategory);
+
+				let price = row.priceUsd ? Number(row.priceUsd) : 0;
+				if (!price && row.creditsPerGen && row.planCredits && row.planPriceMonthly) {
+					const monthlyPrice = Number(row.planPriceMonthly);
+					const creditsIncluded = row.planCredits;
+					const creditsPerGen = Number(row.creditsPerGen);
+					price = (monthlyPrice / creditsIncluded) * creditsPerGen;
+				}
+				if (price > 0) prices.push(price);
+			}
+
+			alternatives.push({
+				platform: {
+					...platform,
+					pros: (platform.pros as string[]) || [],
+					cons: (platform.cons as string[]) || [],
+				},
+				lowestPrice: prices.length > 0 ? Math.min(...prices) : null,
+				modelCount: pricingRows.length,
+				categories: Array.from(categories),
+			});
+		}
+
+		// Sort by lowest price
+		alternatives.sort((a, b) => {
+			if (a.lowestPrice === null) return 1;
+			if (b.lowestPrice === null) return -1;
+			return a.lowestPrice - b.lowestPrice;
+		});
+
+		return alternatives;
+	});
+
+// Get pricing entries for a specific platform
+export const getPlatformPricing = createServerFn({ method: "GET" })
+	.validator((platformSlug: string) => platformSlug)
+	.handler(async ({ data: platformSlug }) => {
+		if (!db) return [];
+
+		const rows = await db
+			.select({
+				id: platformModelPricing.id,
+				modelName: models.name,
+				providerName: providers.name,
+				category: models.type,
+				platformName: platforms.name,
+				planName: platformPlans.name,
+				planCredits: platformPlans.credits,
+				planPriceMonthly: platformPlans.priceMonthly,
+				creditsPerGen: platformModelPricing.creditsPerGen,
+				priceUsd: platformModelPricing.priceUsd,
+				resolution: platformModelPricing.resolution,
+				notes: platformModelPricing.notes,
+				updatedAt: platformModelPricing.updatedAt,
+			})
+			.from(platformModelPricing)
+			.innerJoin(platforms, eq(platformModelPricing.platformId, platforms.id))
+			.innerJoin(platformPlans, eq(platformModelPricing.platformPlanId, platformPlans.id))
+			.innerJoin(models, eq(platformModelPricing.modelId, models.id))
+			.innerJoin(providers, eq(models.providerId, providers.id))
+			.where(eq(platforms.slug, platformSlug))
+			.orderBy(asc(platformModelPricing.priceUsd));
+
+		const entries: PricingEntry[] = [];
+
+		for (const row of rows) {
+			let priceValue = row.priceUsd ? Number(row.priceUsd) : 0;
+
+			if (!priceValue && row.creditsPerGen && row.planCredits && row.planPriceMonthly) {
+				const monthlyPrice = Number(row.planPriceMonthly);
+				const creditsIncluded = row.planCredits;
+				const creditsPerGen = Number(row.creditsPerGen);
+				priceValue = (monthlyPrice / creditsIncluded) * creditsPerGen;
+			}
+
+			entries.push({
+				id: row.id,
+				modelName: row.modelName,
+				providerName: row.providerName,
+				category: row.category as ModelCategory,
+				surface: "platform",
+				platformName: row.platformName,
+				planName: row.planName,
+				unitLabel: row.category === "video" ? "per second" : "per image",
+				priceLabel: formatPriceLabel(priceValue),
+				priceValue,
+				resolution: row.resolution,
+				audioIncluded: false,
+				lastUpdatedLabel: formatTimeAgo(row.updatedAt),
+				notes: row.notes,
+			});
+		}
+
+		entries.sort((a, b) => a.priceValue - b.priceValue);
+		return entries;
+	});

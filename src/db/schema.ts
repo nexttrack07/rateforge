@@ -79,6 +79,9 @@ export const platforms = pgTable(
 		affiliateUrl: text("affiliate_url"),
 		affiliateCommission: text("affiliate_commission"),
 		pricingUrl: text("pricing_url"),
+		shortDescription: text("short_description"),
+		pros: jsonb("pros").$type<string[]>(),
+		cons: jsonb("cons").$type<string[]>(),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),

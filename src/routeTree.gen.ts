@@ -14,7 +14,9 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlternativesIndexRouteImport } from './routes/alternatives.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AlternativesPlatformRouteImport } from './routes/alternatives.$platform'
 import { Route as AdminProvidersRouteImport } from './routes/admin.providers'
 import { Route as AdminPricingEntryRouteImport } from './routes/admin.pricing-entry'
 import { Route as AdminPricingRouteImport } from './routes/admin.pricing'
@@ -47,10 +49,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlternativesIndexRoute = AlternativesIndexRouteImport.update({
+  id: '/alternatives/',
+  path: '/alternatives/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const AlternativesPlatformRoute = AlternativesPlatformRouteImport.update({
+  id: '/alternatives/$platform',
+  path: '/alternatives/$platform',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminProvidersRoute = AdminProvidersRouteImport.update({
   id: '/providers',
@@ -95,7 +107,9 @@ export interface FileRoutesByFullPath {
   '/admin/pricing': typeof AdminPricingRoute
   '/admin/pricing-entry': typeof AdminPricingEntryRoute
   '/admin/providers': typeof AdminProvidersRoute
+  '/alternatives/$platform': typeof AlternativesPlatformRoute
   '/admin/': typeof AdminIndexRoute
+  '/alternatives/': typeof AlternativesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -108,7 +122,9 @@ export interface FileRoutesByTo {
   '/admin/pricing': typeof AdminPricingRoute
   '/admin/pricing-entry': typeof AdminPricingEntryRoute
   '/admin/providers': typeof AdminProvidersRoute
+  '/alternatives/$platform': typeof AlternativesPlatformRoute
   '/admin': typeof AdminIndexRoute
+  '/alternatives': typeof AlternativesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,7 +139,9 @@ export interface FileRoutesById {
   '/admin/pricing': typeof AdminPricingRoute
   '/admin/pricing-entry': typeof AdminPricingEntryRoute
   '/admin/providers': typeof AdminProvidersRoute
+  '/alternatives/$platform': typeof AlternativesPlatformRoute
   '/admin/': typeof AdminIndexRoute
+  '/alternatives/': typeof AlternativesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,7 +157,9 @@ export interface FileRouteTypes {
     | '/admin/pricing'
     | '/admin/pricing-entry'
     | '/admin/providers'
+    | '/alternatives/$platform'
     | '/admin/'
+    | '/alternatives/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,7 +172,9 @@ export interface FileRouteTypes {
     | '/admin/pricing'
     | '/admin/pricing-entry'
     | '/admin/providers'
+    | '/alternatives/$platform'
     | '/admin'
+    | '/alternatives'
   id:
     | '__root__'
     | '/'
@@ -166,7 +188,9 @@ export interface FileRouteTypes {
     | '/admin/pricing'
     | '/admin/pricing-entry'
     | '/admin/providers'
+    | '/alternatives/$platform'
     | '/admin/'
+    | '/alternatives/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -175,6 +199,8 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CompareRoute: typeof CompareRoute
   ToolsRoute: typeof ToolsRoute
+  AlternativesPlatformRoute: typeof AlternativesPlatformRoute
+  AlternativesIndexRoute: typeof AlternativesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -214,12 +240,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alternatives/': {
+      id: '/alternatives/'
+      path: '/alternatives'
+      fullPath: '/alternatives/'
+      preLoaderRoute: typeof AlternativesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/alternatives/$platform': {
+      id: '/alternatives/$platform'
+      path: '/alternatives/$platform'
+      fullPath: '/alternatives/$platform'
+      preLoaderRoute: typeof AlternativesPlatformRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/providers': {
       id: '/admin/providers'
@@ -294,6 +334,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CompareRoute: CompareRoute,
   ToolsRoute: ToolsRoute,
+  AlternativesPlatformRoute: AlternativesPlatformRoute,
+  AlternativesIndexRoute: AlternativesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
