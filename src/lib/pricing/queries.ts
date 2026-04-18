@@ -247,9 +247,9 @@ export type AlternativeComparison = {
 };
 
 // Get a single platform by slug with metadata
-export const getPlatformBySlug = createServerFn({ method: "GET" })
-	.validator((slug: string) => slug)
-	.handler(async ({ data: slug }) => {
+export const getPlatformBySlug = createServerFn({ method: "GET" }).handler(
+	async (ctx: { data: string }) => {
+		const slug = ctx.data;
 		if (!db) return null;
 
 		const rows = await db
@@ -274,7 +274,8 @@ export const getPlatformBySlug = createServerFn({ method: "GET" })
 			pros: (row.pros as string[]) || [],
 			cons: (row.cons as string[]) || [],
 		} as PlatformWithMeta;
-	});
+	},
+);
 
 // Get all platforms (for listing)
 export const getAllPlatforms = createServerFn({ method: "GET" }).handler(
@@ -303,9 +304,9 @@ export const getAllPlatforms = createServerFn({ method: "GET" }).handler(
 );
 
 // Get alternatives for a platform (all other platforms with comparison data)
-export const getAlternatives = createServerFn({ method: "GET" })
-	.validator((platformSlug: string) => platformSlug)
-	.handler(async ({ data: platformSlug }) => {
+export const getAlternatives = createServerFn({ method: "GET" }).handler(
+	async (ctx: { data: string }) => {
+		const platformSlug = ctx.data;
 		if (!db) return [];
 
 		// Get all platforms except the target
@@ -381,12 +382,13 @@ export const getAlternatives = createServerFn({ method: "GET" })
 		});
 
 		return alternatives;
-	});
+	},
+);
 
 // Get pricing entries for a specific platform
-export const getPlatformPricing = createServerFn({ method: "GET" })
-	.validator((platformSlug: string) => platformSlug)
-	.handler(async ({ data: platformSlug }) => {
+export const getPlatformPricing = createServerFn({ method: "GET" }).handler(
+	async (ctx: { data: string }) => {
+		const platformSlug = ctx.data;
 		if (!db) return [];
 
 		const rows = await db
@@ -445,4 +447,5 @@ export const getPlatformPricing = createServerFn({ method: "GET" })
 
 		entries.sort((a, b) => a.priceValue - b.priceValue);
 		return entries;
-	});
+	},
+);
