@@ -41,6 +41,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://rateforge.ai/alternatives/dzine</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rateforge.ai/alternatives/artlist</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://rateforge.ai/tools</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
